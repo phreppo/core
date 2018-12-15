@@ -1,4 +1,4 @@
-module Parser where
+module BaseParser where
 
 import Control.Applicative
 import Data.Char
@@ -9,8 +9,8 @@ parse :: Parser a -> String -> [(a,String)]
 parse (P p) string = p string
 
 item :: Parser Char
-item = P ( \inp -> 
-            case inp of 
+item = P ( \string -> 
+            case string of 
             [] -> []       
             (x:xs) -> [(x,xs)])
 
@@ -21,9 +21,9 @@ instance Functor Parser where
                             [(v,out)] -> [(g v,out)])
 
 instance Applicative Parser where
-    pure v = P (\imp -> [(v,imp)])
+    pure v = P (\string -> [(v,string)])
 
-    pg <*> px = P ( \imp -> case parse pg imp of 
+    pg <*> px = P ( \string -> case parse pg string of 
         [] -> []
         [(g,out)] -> parse (fmap g px) out)
 
@@ -31,18 +31,24 @@ instance Monad Parser where
     -- (>>=) :: Parser a -> (a -> Parser b) -> Parser b
     p >>= f = P ( \inp -> case parse p inp of 
                             [] -> []
-                            [(v,out)] -> parse (f v) out
-                )
+                            [(v,out)] -> parse (f v) out )
                             
 instance Alternative Parser where
+    -- empty :: Parser a
     empty = P ( \inp -> [])
+
+    -- p <|> q :: Parser a -> Parser a -> Parser a
     p <|> q = P  (\inp -> case parse p inp of
                             [] -> parse q inp
                             [(v,out)] -> [(v,out)])
 
 sat :: (Char -> Bool) -> Parser Char
-sat p = do x <- item
-           if p x then return x else empty                             
+-- sat p = do x <- item
+--            if p x then return x else empty    
+sat p = item >>= \x ->
+        if p x
+            then return x
+            else empty
 
 digit :: Parser Char
 digit = sat isDigit

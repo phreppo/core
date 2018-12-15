@@ -2,7 +2,7 @@
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 11ad2eefe738404b319b03e80d987204f0d9bef90626b0f52d86c638cc4feae2
+-- hash: 6308a087ce167895acb24bdc343a45a0054efe33f5b591d29b9cdd1d7584c578
 
 name:           core
 version:        0.1.0.0
@@ -26,9 +26,10 @@ source-repository head
 
 library
   exposed-modules:
+      BaseParser
+      CoreParser
       Language
       Lib
-      Parser
   other-modules:
       Paths_core
   hs-source-dirs:

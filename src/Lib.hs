@@ -3,7 +3,7 @@ module Lib
     ) where
 
 import Language
-import Parser
+import CoreParser
 
 someFunc :: IO ()
 someFunc = putStrLn "someFunc"
