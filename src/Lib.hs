@@ -2,6 +2,7 @@ module Lib
     ( someFunc
     ) where
 
+import Language
 import Control.Applicative
 import Data.Char
 
