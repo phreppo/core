@@ -1,2 +1,1 @@
 # core
-Core language parser
