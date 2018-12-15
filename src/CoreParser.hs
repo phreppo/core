@@ -5,20 +5,7 @@ import BaseParser
 import Control.Applicative
 import Data.Char
 
--- parseProg :: Parser (Program Name)
--- parseProg = do p <- parseScDef
---                do character ';'
---                   ps <- parseProg
---                   return (p:ps)
---                <|> return [p]
-
--- parseScDef :: Parser (ScDef Name)
--- parseScDef = do v <- identifier
---                 pf <- many identifier
---                 char '='
---                 body <- parseExpr -- call to parseExpr
---                 return (v, pf, body)
-
+keywords :: [String]
 keywords = [
     "let",
     "letrec",
@@ -26,6 +13,21 @@ keywords = [
     "case",
     "of",
     "Pack"]
+
+parseProg :: Parser (Program Name)
+parseProg = do
+    p <- parseScDefn
+    do symbol ";"
+       ps     <- parseProg
+       return (p:ps)
+       <|> return [p]
+
+parseScDefn :: Parser (ScDef Name)
+parseScDefn = do (EVar v) <- parseEVar
+                 pf   <- parseVarList
+                 char '='
+                 body <- parseExpr -- call to parseExpr
+                 return (v, pf, body)
 
 parseExpr :: Parser CoreExpr
 parseExpr =  parseLet
@@ -41,21 +43,21 @@ parseExpr =  parseLet
 
 parseLet :: Parser CoreExpr
 parseLet = do
-    symbol "let"         
+    symbol          "let"         
     (definitions,e) <- parseLetBody
     return $ ELet nonRecursive definitions e
 
 parseLetRec :: Parser CoreExpr
 parseLetRec = do
-    symbol "letrec"
+    symbol          "letrec"
     (definitions,e) <- parseLetBody
     return $ ELet recursive definitions e
 
 parseLetBody :: Parser ([CoreDef], CoreExpr)
 parseLetBody = do
     definitions <- semicolonList parseDef
-    symbol "in"
-    e <- parseExpr
+    symbol      "in"
+    e           <- parseExpr
     return (definitions, e)
 
 parseDef :: Parser CoreDef
@@ -95,7 +97,6 @@ parseCaseId = do
     symbol "<"
     n      <- natural
     symbol ">"
-
     return n
     
 parseVarList :: Parser [Name]
@@ -123,7 +124,7 @@ parseLambda = do
 parseLambdaHead :: Parser [Name]
 parseLambdaHead = do 
     symbol "\\"
-    vars <- parseVarNonEmptyList
+    vars   <- parseVarNonEmptyList
     symbol "."
     return vars
 
