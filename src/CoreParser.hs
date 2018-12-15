@@ -19,8 +19,41 @@ import Data.Char
 --                 body <- parseExpr -- call to parseExpr
 --                 return (v, pf, body)
 
+keywords = [
+    "let",
+    "letrec",
+    "in",
+    "case",
+    "of",
+    "Pack"]
+
 parseExpr :: Parser CoreExpr
-parseExpr = parseAExpr
+parseExpr =  parseLet
+         <|> parseAExpr -- should go last
+         <|> empty
+
+--------------------------------------------------------------------------------
+--                                    Let
+--------------------------------------------------------------------------------
+
+parseLet :: Parser CoreExpr
+parseLet = do
+    symbol "let"         
+    definitions <- semicolonList parseDef
+    symbol "in"
+    e <- parseExpr
+    return $ ELet nonRecursive definitions e
+
+parseDef :: Parser CoreDef
+parseDef = do
+    (EVar var) <- parseEVar
+    symbol "="
+    exp <- parseExpr
+    return (var, exp)
+
+--------------------------------------------------------------------------------
+--                                  AEXpr
+--------------------------------------------------------------------------------
 
 parseAExpr :: Parser CoreExpr
 parseAExpr =  parseEVar
@@ -31,7 +64,10 @@ parseAExpr =  parseEVar
 parseEVar :: Parser CoreExpr
 parseEVar = do
     var <- identifier
-    return $ EVar var
+    if elem var keywords
+        -- variables should not be keywords
+        then empty
+        else return $ EVar var
 
 parseENum :: Parser CoreExpr
 parseENum = do
@@ -54,7 +90,5 @@ parseAExprPar = do
     closedPar
     return e
 
--- parseDef :: Parser (Def Name)
--- parseDef = \s -> []
--- parseAlt :: Parser (Alter Name)
+-- parseAlt :: Parser CoreAlt
 -- parseAlt = \s -> []

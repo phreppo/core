@@ -117,10 +117,9 @@ openPar = symbol "("
 closedPar :: Parser String
 closedPar = symbol ")"
 
-nats :: Parser [Int]
-nats = do symbol "["
-          n <- natural
-          ns <- many (do symbol ","
-                         natural)
-          symbol "]"
-          return (n:ns)
+semicolonList :: Parser a -> Parser [a]
+semicolonList p = do 
+        first <- p
+        others <- many (do symbol ";"
+                           p)
+        return (first:others)

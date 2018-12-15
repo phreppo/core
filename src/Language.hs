@@ -21,7 +21,7 @@ type CoreExpr = Expr Name
 type Alter a = (Int, [a], Expr a)
 type CoreAlt = Alter Name
 
-type Def a = [(a, Expr a)]
+type Def a = (a, Expr a)
 type CoreDef = Def Name
 
 type Name  = String
