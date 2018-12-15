@@ -72,7 +72,7 @@ string :: String -> Parser String
 string [] = return []
 string (x:xs) = do char x 
                    string xs 
-                   return (x:xs)
+                   return (x:xs) -- parser that applies id on the out and has the string on the head
 
 ident :: Parser String
 ident = do x <- lower 
@@ -110,6 +110,12 @@ integer = token int
 
 symbol :: String -> Parser String
 symbol xs = token (string xs)
+
+openPar :: Parser String
+openPar = symbol "("
+
+closedPar :: Parser String
+closedPar = symbol ")"
 
 nats :: Parser [Int]
 nats = do symbol "["
