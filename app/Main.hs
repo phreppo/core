@@ -31,6 +31,9 @@ comp [(_,rest)] = error ("doesn't use all input: " ++ rest)
 
 main :: IO (Program Name)
 main = do 
-    inp <- readF "input.txt"
+    putStr "> Insert program source file name: "
+    hFlush stdout
+    programName <- getLine
+    inp <- readF programName
     print $ comp $ parse parseProg inp
     return (comp (parse parseProg inp))
