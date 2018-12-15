@@ -29,6 +29,7 @@ keywords = [
 
 parseExpr :: Parser CoreExpr
 parseExpr =  parseLet
+         <|> parseLetRec
          <|> parseAExpr -- should go last
          <|> empty
 
@@ -39,10 +40,21 @@ parseExpr =  parseLet
 parseLet :: Parser CoreExpr
 parseLet = do
     symbol "let"         
+    (definitions,e) <- parseLetBody
+    return $ ELet nonRecursive definitions e
+
+parseLetRec :: Parser CoreExpr
+parseLetRec = do
+    symbol "letrec"
+    (definitions,e) <- parseLetBody
+    return $ ELet recursive definitions e
+
+parseLetBody :: Parser ([CoreDef], CoreExpr)
+parseLetBody = do
     definitions <- semicolonList parseDef
     symbol "in"
     e <- parseExpr
-    return $ ELet nonRecursive definitions e
+    return (definitions, e)
 
 parseDef :: Parser CoreDef
 parseDef = do
