@@ -30,6 +30,7 @@ keywords = [
 parseExpr :: Parser CoreExpr
 parseExpr =  parseLet
          <|> parseLetRec
+         <|> parseCase
          <|> parseAExpr -- should go last
          <|> empty
 
@@ -64,7 +65,46 @@ parseDef = do
     return (var, exp)
 
 --------------------------------------------------------------------------------
---                                  AEXpr
+--                                    Case
+--------------------------------------------------------------------------------
+
+parseCase :: Parser CoreExpr
+parseCase = do
+    symbol "case"
+    e      <- parseExpr
+    symbol "of"
+    cases  <- semicolonList parseAlt
+    return $ ECase e cases
+
+parseAlt :: Parser CoreAlt
+parseAlt = do
+    (n,vars) <- parseCaseHead
+    body     <- parseExpr
+    return (n, vars, body)
+
+parseCaseHead :: Parser (Int, [Name])
+parseCaseHead = do 
+    n      <- parseCaseId
+    vars   <- parseVarList
+    symbol "->"
+    return (n, vars)
+
+parseCaseId :: Parser Int
+parseCaseId = do 
+    symbol "<"
+    n      <- natural
+    symbol ">"
+
+    return n
+    
+parseVarList :: Parser [Name]
+parseVarList = do
+    vars <- many (do (EVar var) <- parseEVar
+                     return var) 
+    return vars
+
+--------------------------------------------------------------------------------
+--                                    AEXpr
 --------------------------------------------------------------------------------
 
 parseAExpr :: Parser CoreExpr
@@ -89,9 +129,9 @@ parseENum = do
 parseConstructor :: Parser CoreExpr
 parseConstructor = do
     symbol "Pack{"
-    n1 <- integer
+    n1     <- integer
     symbol ","
-    n2 <- integer
+    n2     <- integer
     symbol "}"
     return $ EConstr n1 n2
 
@@ -101,6 +141,3 @@ parseAExprPar = do
     e <- parseExpr
     closedPar
     return e
-
--- parseAlt :: Parser CoreAlt
--- parseAlt = \s -> []
