@@ -19,27 +19,26 @@ import Data.Char
 --                 body <- parseExpr -- call to parseExpr
 --                 return (v, pf, body)
 
--- parseExpr :: Parser (Expr Name)
--- parseExpr = do x <- parseAExpr
---                return x
+parseExpr :: Parser CoreExpr
+parseExpr = parseAExpr
 
-parseAExpr :: Parser (Expr Name)
+parseAExpr :: Parser CoreExpr
 parseAExpr =  parseEVar
           <|> parseENum
           <|> parseConstructor
           <|> parseAExprPar
 
-parseEVar :: Parser (Expr Name)
+parseEVar :: Parser CoreExpr
 parseEVar = do
     var <- identifier
     return $ EVar var
 
-parseENum :: Parser (Expr Name)
+parseENum :: Parser CoreExpr
 parseENum = do
     n <- integer 
     return $ ENum n
 
-parseConstructor :: Parser (Expr Name)
+parseConstructor :: Parser CoreExpr
 parseConstructor = do
     symbol "Pack{"
     n1 <- integer
@@ -48,12 +47,12 @@ parseConstructor = do
     symbol "}"
     return $ EConstr n1 n2
 
-parseAExprPar :: Parser (Expr Name)
+parseAExprPar :: Parser CoreExpr
 parseAExprPar = do 
     openPar
-    -- TODO: once parseExpr implemented, put it here
+    e <- parseExpr
     closedPar
-    return $ ENum 666
+    return e
 
 -- parseDef :: Parser (Def Name)
 -- parseDef = \s -> []

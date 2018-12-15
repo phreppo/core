@@ -100,7 +100,7 @@ token p = do space
              return v
 
 identifier :: Parser String
-identifier = token identifier
+identifier = token ident
 
 natural :: Parser Int
 natural = token nat
