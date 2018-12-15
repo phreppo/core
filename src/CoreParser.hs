@@ -31,6 +31,7 @@ parseExpr :: Parser CoreExpr
 parseExpr =  parseLet
          <|> parseLetRec
          <|> parseCase
+         <|> parseLambda
          <|> parseAExpr -- should go last
          <|> empty
 
@@ -101,6 +102,29 @@ parseVarList :: Parser [Name]
 parseVarList = do
     vars <- many (do (EVar var) <- parseEVar
                      return var) 
+    return vars
+
+parseVarNonEmptyList :: Parser [Name]
+parseVarNonEmptyList = do 
+    (EVar v1) <- parseEVar -- we have to unbox beacuse of additional checks the result is one expression
+    others <- parseVarList
+    return (v1:others)
+
+--------------------------------------------------------------------------------
+--                                   Lambda
+--------------------------------------------------------------------------------
+
+parseLambda :: Parser CoreExpr
+parseLambda = do
+    vars <- parseLambdaHead
+    body <- parseExpr
+    return $ ELam vars body
+
+parseLambdaHead :: Parser [Name]
+parseLambdaHead = do 
+    symbol "\\"
+    vars <- parseVarNonEmptyList
+    symbol "."
     return vars
 
 --------------------------------------------------------------------------------
