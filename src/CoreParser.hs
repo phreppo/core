@@ -35,6 +35,7 @@ parseExpr =  parseLet
          <|> parseCase
          <|> parseLambda
          <|> parseAExpr -- should go last
+        --  application + infix binary application
          <|> empty
 
 --------------------------------------------------------------------------------
