@@ -28,21 +28,19 @@ parseExpr =  parseLet
          <|> parseExpr1
 
 parseExpr1 :: Parser (CoreExpr)
-parseExpr1 = parseRightAssociativeOperator parseExpr2 "|"
+parseExpr1 = parseRightAssociativeOperator "|" parseExpr2
 
 parseExpr2 :: Parser (CoreExpr)
-parseExpr2 = parseRightAssociativeOperator parseExpr3 "&"
+parseExpr2 = parseRightAssociativeOperator "&" parseExpr3
 
 parseExpr3 :: Parser (CoreExpr)
-parseExpr3 = parseNonAssociativeOp parseExpr4 relop
+parseExpr3 = parseNonAssociativeOp relops parseExpr4
 
 parseExpr4 :: Parser (CoreExpr)
-parseExpr4 =  parseRightAssociativeOperator parseExpr5 "+" 
-          <|> parseNonAssociativeOp parseExpr5 ["-"]
+parseExpr4 = parseArithmeticOperatorPair "+" "-" parseExpr5
 
 parseExpr5 :: Parser (CoreExpr)
-parseExpr5 =  parseRightAssociativeOperator parseExpr6 "*" 
-          <|> parseNonAssociativeOp parseExpr6 ["/"]
+parseExpr5 = parseArithmeticOperatorPair "*" "/" parseExpr6
 
 parseExpr6 :: Parser (CoreExpr)
 parseExpr6 = fmap (mkChain) (some parseAExpr)
@@ -181,23 +179,33 @@ parseAExprPar = do
 --                                Aux functions
 --------------------------------------------------------------------------------
 
-parseRightAssociativeOperator :: Parser CoreExpr -> String -> Parser CoreExpr
--- right associativity
--- a | b | c -> a | (b | c)
-parseRightAssociativeOperator nextParser op = do
+parseRightAssociativeOperator :: String -> Parser CoreExpr -> Parser CoreExpr
+parseRightAssociativeOperator op nextParser = do
     a <- nextParser
     do symbol op
-       b <- parseRightAssociativeOperator nextParser op
+       b <- parseRightAssociativeOperator op nextParser
        return $ EAp (EAp (EVar op) a) b
        <|> return a
 
-parseNonAssociativeOp :: Parser CoreExpr -> [String] -> Parser CoreExpr
-parseNonAssociativeOp nextParser ops = do
+parseNonAssociativeOp :: [String] -> Parser CoreExpr -> Parser CoreExpr
+parseNonAssociativeOp ops nextParser = do
     a <- nextParser
     do op <- symbols ops
        b  <- nextParser
        return $ EAp (EAp (EVar op) a) b
        <|> return a
+
+parseArithmeticOperatorPair :: String -> String -> Parser CoreExpr -> Parser CoreExpr
+parseArithmeticOperatorPair repeatableOperator nonRepeatableOperator nextParser =  
+    do sub1 <- nextParser 
+       symbol repeatableOperator
+       sub2 <- parseArithmeticOperatorPair repeatableOperator nonRepeatableOperator nextParser
+       return $ EAp (EAp (EVar repeatableOperator) sub1) sub2
+       <|> do sub1 <- nextParser 
+              symbol nonRepeatableOperator
+              sub2 <- nextParser
+              return $ EAp (EAp (EVar nonRepeatableOperator) sub1) sub2
+       <|> nextParser
 
 mkChain :: [CoreExpr] -> CoreExpr
 mkChain (x:[]) = x
