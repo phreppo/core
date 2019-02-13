@@ -14,7 +14,7 @@ parseProg = do
        <|> return [p]
 
 parseScDefn :: Parser (ScDef Name)
-parseScDefn = do (EVar v) <- parseEVar
+parseScDefn = do v <- parseCoreVar
                  pf   <- parseVarList
                  char '='
                  body <- parseExpr -- call to parseExpr
@@ -70,7 +70,7 @@ parseLetBody = do
 
 parseDef :: Parser CoreDef
 parseDef = do
-    (EVar var) <- parseEVar
+    var <- parseCoreVar
     symbol "="
     exp <- parseExpr
     return (var, exp)
@@ -109,13 +109,13 @@ parseCaseId = do
     
 parseVarList :: Parser [Name]
 parseVarList = do
-    vars <- many (do (EVar var) <- parseEVar
+    vars <- many (do var <- parseCoreVar
                      return var) 
     return vars
 
 parseVarNonEmptyList :: Parser [Name]
 parseVarNonEmptyList = do 
-    (EVar v1) <- parseEVar -- we have to unbox beacuse of additional checks the result is one expression
+    v1 <- parseCoreVar -- we have to unbox beacuse of additional checks the result is one expression
     others <- parseVarList
     return (v1:others)
 
@@ -147,12 +147,17 @@ parseAExpr =  parseEVar
           <|> parseAExprPar
 
 parseEVar :: Parser CoreExpr
-parseEVar = do
+parseEVar = do v <- parseCoreVar
+               return $ EVar v
+
+parseCoreVar :: Parser String
+-- this means that is a var and it's not a core language keyword 
+parseCoreVar = do
     var <- identifier
     if elem var keywords
         -- variables should not be keywords
         then empty
-        else return $ EVar var
+        else return var
 
 parseENum :: Parser CoreExpr
 parseENum = do
