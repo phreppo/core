@@ -5,15 +5,6 @@ import BaseParser
 import Control.Applicative
 import Data.Char
 
-keywords :: [String]
-keywords = [
-    "let",
-    "letrec",
-    "in",
-    "case",
-    "of",
-    "Pack"]
-
 parseProg :: Parser (Program Name)
 parseProg = do
     p <- parseScDefn
@@ -34,9 +25,27 @@ parseExpr =  parseLet
          <|> parseLetRec
          <|> parseCase
          <|> parseLambda
-         <|> parseAExpr -- should go last
-        --  application + infix binary application
-         <|> empty
+         <|> parseExpr1
+
+parseExpr1 :: Parser (CoreExpr)
+parseExpr1 = parseRightAssociativeOperator parseExpr2 "|"
+
+parseExpr2 :: Parser (CoreExpr)
+parseExpr2 = parseRightAssociativeOperator parseExpr3 "&"
+
+parseExpr3 :: Parser (CoreExpr)
+parseExpr3 = parseNonAssociativeOp parseExpr4 relop
+
+parseExpr4 :: Parser (CoreExpr)
+parseExpr4 =  parseRightAssociativeOperator parseExpr5 "+" 
+          <|> parseNonAssociativeOp parseExpr5 ["-"]
+
+parseExpr5 :: Parser (CoreExpr)
+parseExpr5 =  parseRightAssociativeOperator parseExpr6 "*" 
+          <|> parseNonAssociativeOp parseExpr6 ["/"]
+
+parseExpr6 :: Parser (CoreExpr)
+parseExpr6 = fmap (mkChain) (some parseAExpr)
 
 --------------------------------------------------------------------------------
 --                                    Let
@@ -167,3 +176,29 @@ parseAExprPar = do
     e <- parseExpr
     closedPar
     return e
+
+--------------------------------------------------------------------------------
+--                                Aux functions
+--------------------------------------------------------------------------------
+
+parseRightAssociativeOperator :: Parser CoreExpr -> String -> Parser CoreExpr
+-- right associativity
+-- a | b | c -> a | (b | c)
+parseRightAssociativeOperator nextParser op = do
+    a <- nextParser
+    do symbol op
+       b <- parseRightAssociativeOperator nextParser op
+       return $ EAp (EAp (EVar op) a) b
+       <|> return a
+
+parseNonAssociativeOp :: Parser CoreExpr -> [String] -> Parser CoreExpr
+parseNonAssociativeOp nextParser ops = do
+    a <- nextParser
+    do op <- symbols ops
+       b  <- nextParser
+       return $ EAp (EAp (EVar op) a) b
+       <|> return a
+
+mkChain :: [CoreExpr] -> CoreExpr
+mkChain (x:[]) = x
+mkChain xs = EAp (mkChain $ init xs) (last xs)

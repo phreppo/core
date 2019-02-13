@@ -28,6 +28,24 @@ type Name  = String
 data IsRec = NonRecursive | Recursive
            deriving Show
 
+keywords :: [String]
+keywords = [
+    "let",
+    "letrec",
+    "in",
+    "case",
+    "of",
+    "Pack"]
+
+relop :: [String]
+relop = [
+    "<<", 
+    "<=",
+    "==",
+    "~=",
+    ">=",
+    ">>"]
+
 --------------------------------------------------------------------------------
 --                              Utility functions
 --------------------------------------------------------------------------------

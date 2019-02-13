@@ -73,6 +73,10 @@ string [] = return []
 string (x:xs) = do char x 
                    string xs 
                    return (x:xs) -- parser that applies id on the out and has the string on the head
+    
+strings :: [String] -> Parser String
+strings [] = empty
+strings (x:xs) = string x <|> strings xs
 
 ident :: Parser String
 ident = do x <- lower 
@@ -110,6 +114,9 @@ integer = token int
 
 symbol :: String -> Parser String
 symbol xs = token (string xs)
+
+symbols :: [String] -> Parser String
+symbols xs = token (strings xs)
 
 openPar :: Parser String
 openPar = symbol "("

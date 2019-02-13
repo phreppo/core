@@ -37,3 +37,5 @@ main = do
     inp <- readF programName
     print $ comp $ parse parseProg inp
     return (comp (parse parseProg inp))
+
+p = parse parseExpr
