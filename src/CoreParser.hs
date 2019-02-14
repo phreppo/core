@@ -43,7 +43,7 @@ parseExpr5 :: Parser (CoreExpr)
 parseExpr5 = parseArithmeticOperatorPair "*" "/" parseExpr6
 
 parseExpr6 :: Parser (CoreExpr)
-parseExpr6 = fmap (mkChain) (some parseAExpr)
+parseExpr6 = fmap applicationChain (some parseAExpr)
 
 --------------------------------------------------------------------------------
 --                                    Let
@@ -212,6 +212,6 @@ parseArithmeticOperatorPair repeatableOperator nonRepeatableOperator nextParser 
               return $ EAp (EAp (EVar nonRepeatableOperator) sub1) sub2
        <|> nextParser
 
-mkChain :: [CoreExpr] -> CoreExpr
-mkChain (x:[]) = x
-mkChain xs = EAp (mkChain $ init xs) (last xs)
+applicationChain :: [CoreExpr] -> CoreExpr
+applicationChain (x:[]) = x
+applicationChain xs = EAp (applicationChain $ init xs) (last xs)
