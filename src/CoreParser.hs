@@ -122,20 +122,20 @@ parseVarList = do
 
 parseLambda :: Parser CoreExpr
 parseLambda = do
-    vars <- parseLambdaHead
+    symbol "\\"
+    vars <- parseLambdaVars
+    symbol "."
     body <- parseExpr
     return $ ELam vars body
 
-parseLambdaHead :: Parser [Name]
-parseLambdaHead = do 
-    symbol "\\"
+parseLambdaVars :: Parser [Name]
+parseLambdaVars = do 
     vars   <- parseVarNonEmptyList
-    symbol "."
     return vars
 
 parseVarNonEmptyList :: Parser [Name]
 parseVarNonEmptyList = do 
-    v1 <- parseCoreVar
+    v1     <- parseCoreVar
     others <- parseVarList
     return (v1:others)
 
