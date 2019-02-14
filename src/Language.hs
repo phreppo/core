@@ -58,8 +58,8 @@ nonRecursive :: IsRec
 nonRecursive = NonRecursive
 
 isAtomicExpr :: Expr a -> Bool
-isAtomicExpr (EVar v) = True
-isAtomicExpr (ENum n) = True
+isAtomicExpr (EVar _) = True
+isAtomicExpr (ENum _) = True
 isAtomicExpr e = False
 
 bindersOf :: [(a,b)] -> [a] -- for let
