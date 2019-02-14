@@ -51,12 +51,6 @@ relops = [
 --                              Utility functions
 --------------------------------------------------------------------------------
 
-recursive :: IsRec
-recursive    = Recursive
-
-nonRecursive :: IsRec
-nonRecursive = NonRecursive
-
 isAtomicExpr :: Expr a -> Bool
 isAtomicExpr (EVar _) = True
 isAtomicExpr (ENum _) = True

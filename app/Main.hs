@@ -35,7 +35,7 @@ main = do
     hFlush stdout
     programName <- getLine
     inp <- readF programName
-    print $ comp $ parse parseProg inp
-    return (comp (parse parseProg inp))
+    print  $ comp $ parse parseProg inp
+    return $ comp $ parse parseProg inp
 
 p = parse parseExpr

@@ -13,12 +13,16 @@ parseProg = do
        return (p:ps)
        <|> return [p]
 
+--------------------------------------------------------------------------------
+
 parseScDefn :: Parser (ScDef Name)
-parseScDefn = do v <- parseCoreVar
-                 pf   <- parseVarList
-                 char '='
-                 body <- parseExpr
-                 return (v, pf, body)
+parseScDefn = do fun        <- parseCoreVar
+                 parameters <- parseVarList
+                 char       '='
+                 body       <- parseExpr
+                 return (fun, parameters, body)
+
+--------------------------------------------------------------------------------
 
 parseExpr :: Parser CoreExpr
 parseExpr =  parseLet
@@ -26,7 +30,7 @@ parseExpr =  parseLet
          <|> parseCase
          <|> parseLambda
          <|> parseExpr1
-
+         
 parseExpr1 :: Parser CoreExpr
 parseExpr1 = parseRightAssociativeOperator "|" parseExpr2
 
@@ -46,20 +50,20 @@ parseExpr6 :: Parser CoreExpr
 parseExpr6 = fmap applicationChain (some parseAExpr)
 
 --------------------------------------------------------------------------------
---                                    Let
+--                                 Let & LetRec
 --------------------------------------------------------------------------------
 
 parseLet :: Parser CoreExpr
 parseLet = do
     symbol          "let"         
     (definitions,e) <- parseLetBody
-    return $ ELet nonRecursive definitions e
+    return $ ELet NonRecursive definitions e
 
 parseLetRec :: Parser CoreExpr
 parseLetRec = do
     symbol          "letrec"
     (definitions,e) <- parseLetBody
-    return $ ELet recursive definitions e
+    return $ ELet Recursive definitions e
 
 parseLetBody :: Parser ([CoreDef], CoreExpr)
 parseLetBody = do
@@ -109,13 +113,12 @@ parseCaseId = do
     
 parseVarList :: Parser [Name]
 parseVarList = do
-    vars <- many (do var <- parseCoreVar
-                     return var) 
+    vars <- many parseCoreVar 
     return vars
 
 parseVarNonEmptyList :: Parser [Name]
 parseVarNonEmptyList = do 
-    v1 <- parseCoreVar -- we have to unbox beacuse of additional checks the result is one expression
+    v1 <- parseCoreVar
     others <- parseVarList
     return (v1:others)
 
