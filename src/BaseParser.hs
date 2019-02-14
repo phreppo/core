@@ -21,8 +21,10 @@ instance Functor Parser where
                             [(v,out)] -> [(g v,out)])
 
 instance Applicative Parser where
+    --  pure :: a -> Parser a
     pure v = P (\string -> [(v,string)])
 
+    -- <*> :: Parser (a -> b) -> Parser a -> Parser b
     pg <*> px = P ( \string -> case parse pg string of 
         [] -> []
         [(g,out)] -> parse (fmap g px) out)
@@ -72,11 +74,11 @@ string :: String -> Parser String
 string [] = return []
 string (x:xs) = do char x 
                    string xs 
-                   return (x:xs) -- parser that applies id on the out and has the string on the head
+                   return (x:xs)
     
 strings :: [String] -> Parser String
 strings [] = empty
-strings (x:xs) = string x 
+strings (x:xs) =  string x 
               <|> strings xs
 
 ident :: Parser String
