@@ -76,7 +76,8 @@ string (x:xs) = do char x
     
 strings :: [String] -> Parser String
 strings [] = empty
-strings (x:xs) = string x <|> strings xs
+strings (x:xs) = string x 
+              <|> strings xs
 
 ident :: Parser String
 ident = do x <- lower 
