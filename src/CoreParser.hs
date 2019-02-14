@@ -116,12 +116,6 @@ parseVarList = do
     vars <- many parseCoreVar 
     return vars
 
-parseVarNonEmptyList :: Parser [Name]
-parseVarNonEmptyList = do 
-    v1 <- parseCoreVar
-    others <- parseVarList
-    return (v1:others)
-
 --------------------------------------------------------------------------------
 --                                   Lambda
 --------------------------------------------------------------------------------
@@ -138,6 +132,12 @@ parseLambdaHead = do
     vars   <- parseVarNonEmptyList
     symbol "."
     return vars
+
+parseVarNonEmptyList :: Parser [Name]
+parseVarNonEmptyList = do 
+    v1 <- parseCoreVar
+    others <- parseVarList
+    return (v1:others)
 
 --------------------------------------------------------------------------------
 --                                    AEXpr
