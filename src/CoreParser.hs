@@ -130,14 +130,8 @@ parseLambda = do
 
 parseLambdaVars :: Parser [Name]
 parseLambdaVars = do 
-    vars   <- parseVarNonEmptyList
+    vars   <- some parseCoreVar
     return vars
-
-parseVarNonEmptyList :: Parser [Name]
-parseVarNonEmptyList = do 
-    v1     <- parseCoreVar
-    others <- parseVarList
-    return (v1:others)
 
 --------------------------------------------------------------------------------
 --                                    AEXpr
