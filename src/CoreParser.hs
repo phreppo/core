@@ -62,15 +62,15 @@ parseLetRec = parseLetGeneralized "letrec" Recursive
 parseLetGeneralized :: String -> IsRec -> Parser CoreExpr
 parseLetGeneralized symbolString mod = do
     symbol          symbolString
-    (definitions,e) <- parseLetBody
+    definitions     <- parseLetDefs
+    symbol          "in"
+    e               <- parseExpr
     return $ ELet mod definitions e
 
-parseLetBody :: Parser ([CoreDef], CoreExpr)
-parseLetBody = do
-    definitions <- semicolonList parseDef
-    symbol      "in"
-    e           <- parseExpr
-    return (definitions, e)
+parseLetDefs :: Parser [CoreDef]
+parseLetDefs = do
+    vars <- semicolonList parseDef
+    return vars
 
 parseDef :: Parser CoreDef
 parseDef = do
