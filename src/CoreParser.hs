@@ -34,7 +34,7 @@ parseExpr2 :: Parser (CoreExpr)
 parseExpr2 = parseRightAssociativeOperator "&" parseExpr3
 
 parseExpr3 :: Parser (CoreExpr)
-parseExpr3 = parseNonAssociativeOp relops parseExpr4
+parseExpr3 = parseNonAssociativeOpIn relops parseExpr4
 
 parseExpr4 :: Parser (CoreExpr)
 parseExpr4 = parseArithmeticOperatorPair "+" "-" parseExpr5
@@ -192,8 +192,8 @@ parseRightAssociativeOperator op nextParser = do
        return $ EAp (EAp (EVar op) a) b
        <|> return a
 
-parseNonAssociativeOp :: [String] -> Parser CoreExpr -> Parser CoreExpr
-parseNonAssociativeOp ops nextParser = do
+parseNonAssociativeOpIn :: [String] -> Parser CoreExpr -> Parser CoreExpr
+parseNonAssociativeOpIn ops nextParser = do
     a <- nextParser
     do op <- symbols ops
        b  <- nextParser
