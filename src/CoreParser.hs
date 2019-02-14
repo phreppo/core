@@ -54,16 +54,16 @@ parseExpr6 = fmap applicationChain (some parseAExpr)
 --------------------------------------------------------------------------------
 
 parseLet :: Parser CoreExpr
-parseLet = do
-    symbol          "let"         
-    (definitions,e) <- parseLetBody
-    return $ ELet NonRecursive definitions e
+parseLet = parseLetGeneralized "let" NonRecursive
 
 parseLetRec :: Parser CoreExpr
-parseLetRec = do
-    symbol          "letrec"
+parseLetRec = parseLetGeneralized "letrec" Recursive
+
+parseLetGeneralized :: String -> IsRec -> Parser CoreExpr
+parseLetGeneralized symbolString mod = do
+    symbol          symbolString
     (definitions,e) <- parseLetBody
-    return $ ELet Recursive definitions e
+    return $ ELet mod definitions e
 
 parseLetBody :: Parser ([CoreDef], CoreExpr)
 parseLetBody = do
