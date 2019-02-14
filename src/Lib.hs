@@ -1,9 +1,4 @@
-module Lib
-    ( someFunc
-    ) where
+module Lib where
 
 import Language
 import CoreParser
-
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
