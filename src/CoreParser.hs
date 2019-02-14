@@ -17,7 +17,7 @@ parseScDefn :: Parser (ScDef Name)
 parseScDefn = do v <- parseCoreVar
                  pf   <- parseVarList
                  char '='
-                 body <- parseExpr -- call to parseExpr
+                 body <- parseExpr
                  return (v, pf, body)
 
 parseExpr :: Parser CoreExpr
@@ -27,22 +27,22 @@ parseExpr =  parseLet
          <|> parseLambda
          <|> parseExpr1
 
-parseExpr1 :: Parser (CoreExpr)
+parseExpr1 :: Parser CoreExpr
 parseExpr1 = parseRightAssociativeOperator "|" parseExpr2
 
-parseExpr2 :: Parser (CoreExpr)
+parseExpr2 :: Parser CoreExpr
 parseExpr2 = parseRightAssociativeOperator "&" parseExpr3
 
-parseExpr3 :: Parser (CoreExpr)
+parseExpr3 :: Parser CoreExpr
 parseExpr3 = parseNonAssociativeOpIn relops parseExpr4
 
-parseExpr4 :: Parser (CoreExpr)
+parseExpr4 :: Parser CoreExpr
 parseExpr4 = parseArithmeticOperatorPair "+" "-" parseExpr5
 
-parseExpr5 :: Parser (CoreExpr)
+parseExpr5 :: Parser CoreExpr
 parseExpr5 = parseArithmeticOperatorPair "*" "/" parseExpr6
 
-parseExpr6 :: Parser (CoreExpr)
+parseExpr6 :: Parser CoreExpr
 parseExpr6 = fmap applicationChain (some parseAExpr)
 
 --------------------------------------------------------------------------------
