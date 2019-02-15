@@ -1,6 +1,8 @@
 module Language
 where
 
+import Data.List
+
 type Program a = [ScDef a]
 type CoreProgram = Program Name
 
@@ -29,7 +31,7 @@ data IsRec = NonRecursive | Recursive
            deriving Show
 
 keywords :: [String]
-keywords = [
+keywords = reverse $ sort [
     "let",
     "letrec",
     "in",
@@ -38,9 +40,9 @@ keywords = [
     "Pack"]
 
 relops :: [String]
-relops = [
-    "<=",
+relops = reverse $ sort [
     "<", 
+    "<=",
     "==",
     "~=",
     ">=",
