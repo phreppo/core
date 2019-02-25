@@ -6,6 +6,7 @@ import System.IO
 import Language
 import BaseParser
 import CoreParser
+import PrettyPrinter
 
 readF :: String -> IO String
 readF fileName = do 

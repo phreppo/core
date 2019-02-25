@@ -28,7 +28,7 @@ type CoreDef = Def Name
 
 type Name  = String
 data IsRec = NonRecursive | Recursive
-           deriving Show
+           deriving (Show,Eq)
 
 keywords :: [String]
 keywords = reverse $ sort [
@@ -79,3 +79,10 @@ preludeDefs = [
                                    (EAp (EVar "g") (EVar "x"))),
     ("twice", ["f"], EAp (EAp (EVar "compose") (EVar "f")) (EVar "f"))
   ]
+
+p1 :: CoreProgram
+p1 = [
+    ("f", [], EVar "x"), 
+    ("S", ["f","g","x"], EAp (EAp (EVar "f") (EVar "x"))
+                             (EAp (EVar "g") (EVar "x")))
+    ]
