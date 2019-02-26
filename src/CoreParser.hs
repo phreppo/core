@@ -198,16 +198,15 @@ parseNonAssociativeOpsIn ops nextParser = do
        <|> return a
 
 parseArithmeticOperatorPair :: String -> String -> Parser CoreExpr -> Parser CoreExpr
-parseArithmeticOperatorPair associativeOperator nonAssociativeOperator nextParser =  
-    do sub1 <- nextParser 
-       symbol associativeOperator
-       sub2 <- parseArithmeticOperatorPair associativeOperator nonAssociativeOperator nextParser
-       return $ EAp (EAp (EVar associativeOperator) sub1) sub2
-       <|> do sub1 <- nextParser 
-              symbol nonAssociativeOperator
-              sub2 <- nextParser
-              return $ EAp (EAp (EVar nonAssociativeOperator) sub1) sub2
-       <|> nextParser
+parseArithmeticOperatorPair associativeOperator nonAssociativeOperator nextParser =
+    do sub1 <- nextParser
+       do symbol associativeOperator
+          sub2 <- parseArithmeticOperatorPair associativeOperator   nonAssociativeOperator nextParser
+          return $ EAp (EAp (EVar associativeOperator) sub1) sub2
+          <|> do symbol nonAssociativeOperator
+                 sub2 <- nextParser
+                 return $ EAp (EAp (EVar nonAssociativeOperator) sub1) sub2
+          <|> return sub1
 
 applicationChain :: [CoreExpr] -> CoreExpr
 applicationChain (x:[]) = x
