@@ -82,7 +82,7 @@ strings (x:xs) =  string x
               <|> strings xs
 
 ident :: Parser String
-ident = do x <- lower 
+ident = do x  <- lower 
            xs <- many alphanum
            return (x:xs)
 

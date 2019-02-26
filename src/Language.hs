@@ -17,7 +17,7 @@ data Expr a
     | ELet IsRec [Def a] (Expr a)
     | ECase (Expr a) [Alter a]
     | ELam [a] (Expr a)
-    deriving (Show)
+    deriving Show
 type CoreExpr = Expr Name
 
 type Alter a = (Int, [a], Expr a)
