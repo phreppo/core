@@ -41,6 +41,7 @@ keywords = reverse $ sort [
 
 relops :: [String]
 relops = reverse $ sort [
+-- relops = [
     "<", 
     "<=",
     "==",
