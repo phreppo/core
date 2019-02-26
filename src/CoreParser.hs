@@ -151,7 +151,7 @@ parseCoreVar :: Parser String
 -- this means that is a var and it's not a core language keyword 
 parseCoreVar = do
     var <- identifier
-    if elem var keywords
+    if var `elem` keywords
         -- variables should not be keywords
         then empty
         else return var
