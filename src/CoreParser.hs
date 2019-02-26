@@ -5,7 +5,7 @@ import BaseParser
 import Control.Applicative
 import Data.Char
 
-parseProg :: Parser (Program Name)
+parseProg :: Parser (CoreProgram)
 parseProg = do
     p <- parseScDefn
     do symbol ";"
@@ -15,7 +15,7 @@ parseProg = do
 
 --------------------------------------------------------------------------------
 
-parseScDefn :: Parser (ScDef Name)
+parseScDefn :: Parser (CoreScDef)
 parseScDefn = do fun        <- parseCoreVar
                  parameters <- parseVarList
                  char       '='
